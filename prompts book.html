@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Prompts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #5e2a84;
+            font-weight: 600;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .nav-bar {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #ffffff;
+            border-radius: 25px;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            z-index: 1000;
+        }
+        .nav-bar .etiqueta {
+            background-color: #5e2a84;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .nav-bar .etiqueta:hover {
+            background-color: #a140c7;
+        }
+        .prompt-container {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .titulo {
+            font-weight: 600;
+            font-size: 1.4em;
+            color: #5e2a84;
+        }
+        .etiquetas {
+            font-style: italic;
+            color: #555;
+            margin-top: 5px;
+        }
+        .copiar-btn {
+            cursor: pointer;
+            color: #28a745; /* Verde */
+            font-size: 18px;
+            margin-left: 10px;
+            vertical-align: middle;
+            display: inline-flex;
+            align-items: center;
+        }
+        .copiar-btn:hover {
+            color: #218838; /* Verde más oscuro */
+        }
+        .copiar-btn i {
+            margin-right: 5px;
+        }
+        #prompts-list {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 100px;
+        }
+    </style>
+</head>
+<body>
+
+<br>
+<br>
+<br>
+
+<h1>Gestor de Prompts</h1>
+
+<div class="nav-bar" id="navbar"></div>
+<div id="prompts-list"></div>
+
+<script>
+let prompts = [
+    {
+        titulo: "Agregar logs",
+        contenido: `Tengo un bloque de código en Java y quiero mejorarlo con logs estratégicos para facilitar el diagnóstico de errores y el monitoreo del sistema.
+
+Por favor:
+- Usa Logger con nivel adecuado (info, debug, warn, error)
+- Agrega logs al inicio y fin del flujo
+- Loguea parámetros de entrada y salida relevantes
+- Añade logs antes y después de llamadas a servicios, repositorios, etc.
+- Loguea condiciones especiales o validaciones (por ejemplo, cuando algo está vacío o es nulo)
+- En bloques try-catch, registra el error capturado
+
+No agregues logs innecesarios ni repetitivos. El objetivo es tener claridad del flujo para identificar cuellos de botella o errores.
+
+Aquí tienes el código:`,
+
+        etiquetas: ["backend", "java", "logs"]
+    },
+    {
+        titulo: "Crear JSON de prueba",
+        contenido: "Te voy a proporcionar la definición de una clase Java. Por favor, genera un objeto JSON de ejemplo completamente poblado, con datos realistas para cada campo (nombres, fechas, correos, precios, etc.). Asegúrate de incluir también las listas o estructuras anidadas si las hay. codigo: %codigo%  ",
+        etiquetas: ["backend", "API", "JSON"]
+    },
+    {
+        titulo: "Prompt 3",
+        contenido: "Descripción del tercer prompt. Aquí puedes escribir el prompt que quieras.",
+        etiquetas: ["bases de datos", "SQL", "consultas"]
+    }
+];
+
+let allTags = [];
+
+// Obtener todas las etiquetas únicas de los prompts
+prompts.forEach(prompt => {
+    prompt.etiquetas.forEach(etiqueta => {
+        if (!allTags.includes(etiqueta)) {
+            allTags.push(etiqueta);
+        }
+    });
+});
+
+function mostrarPrompts(filtroTags = []) {
+    const container = document.getElementById("prompts-list");
+    container.innerHTML = '';
+
+    const filteredPrompts = filtroTags.length === 0 ? prompts : prompts.filter(prompt => 
+        filtroTags.every(tag => prompt.etiquetas.includes(tag))
+    );
+
+    filteredPrompts.forEach((prompt, index) => {
+        const promptDiv = document.createElement("div");
+        promptDiv.classList.add("prompt-container");
+
+        const titulo = document.createElement("div");
+        titulo.classList.add("titulo");
+        titulo.textContent = prompt.titulo;
+
+        const contenido = document.createElement("div");
+        contenido.innerHTML = aplicarEstiloAvariables(prompt.contenido);
+
+        const etiquetas = document.createElement("div");
+        etiquetas.classList.add("etiquetas");
+        etiquetas.textContent = `Etiquetas: ${prompt.etiquetas.join(", ")}`;
+
+        const copiarBtn = document.createElement("span");
+        copiarBtn.classList.add("copiar-btn");
+        copiarBtn.innerHTML = `<i class="fas fa-copy"></i> Copiar`;
+
+        copiarBtn.onclick = () => copiarPrompt(index);
+
+        promptDiv.appendChild(titulo);
+        promptDiv.appendChild(contenido);
+        promptDiv.appendChild(etiquetas);
+        promptDiv.appendChild(copiarBtn);
+
+        container.appendChild(promptDiv);
+    });
+}
+
+function copiarPrompt(index) {
+    let prompt = prompts[index];
+    let promptText = prompt.contenido;
+
+    const regex = /%([^%]+)%/g;
+    let matches = [...promptText.matchAll(regex)];
+
+    if (matches.length > 0) {
+        matches.forEach(match => {
+            let variable = match[1];
+            let userInput = window.prompt(`Introduce el valor para ${variable}`);
+            promptText = promptText.replace(match[0], userInput);
+        });
+    }
+
+    navigator.clipboard.writeText(promptText)
+        .then(() => alert("Prompt copiado con éxito"))
+        .catch(err => alert("Error al copiar: " + err));
+}
+
+function aplicarEstiloAvariables(texto) {
+    return texto.replace(/%([^%]+)%/g, '<span style="color: #ff7f00;">%$1%</span>');
+}
+
+
+function mostrarEtiquetas() {
+    const navbar = document.getElementById("navbar");
+    navbar.innerHTML = '';
+
+    allTags.forEach(tag => {
+        const tagDiv = document.createElement("div");
+        tagDiv.classList.add("etiqueta");
+        tagDiv.textContent = tag;
+        tagDiv.onclick = () => mostrarPrompts([tag]);
+        navbar.appendChild(tagDiv);
+    });
+
+    // Agregar un botón para mostrar todos los prompts
+    const showAllBtn = document.createElement("div");
+    showAllBtn.classList.add("etiqueta");
+    showAllBtn.textContent = "Mostrar Todos";
+    showAllBtn.onclick = () => mostrarPrompts();
+    navbar.appendChild(showAllBtn);
+}
+
+mostrarEtiquetas();
+mostrarPrompts();
+</script>
+
+</body>
+</html>
