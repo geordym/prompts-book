@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +15,7 @@
             padding: 20px;
             color: #333;
         }
+
         h1 {
             color: #5e2a84;
             font-weight: 600;
@@ -21,6 +23,7 @@
             margin-bottom: 20px;
             text-align: center;
         }
+
         .nav-bar {
             position: fixed;
             top: 20px;
@@ -34,6 +37,7 @@
             gap: 10px;
             z-index: 1000;
         }
+
         .nav-bar .etiqueta {
             background-color: #5e2a84;
             color: white;
@@ -43,9 +47,11 @@
             font-size: 16px;
             transition: background-color 0.3s;
         }
+
         .nav-bar .etiqueta:hover {
             background-color: #a140c7;
         }
+
         .prompt-container {
             margin-bottom: 20px;
             padding: 20px;
@@ -56,17 +62,20 @@
             width: 100%;
             max-width: 800px;
         }
+
         .titulo {
             font-weight: 600;
             font-size: 1.4em;
             color: #5e2a84;
             margin-bottom: 10px;
         }
+
         .etiquetas {
             font-style: italic;
             color: #555;
             margin-top: 5px;
         }
+
         .copiar-btn {
             cursor: pointer;
             color: #28a745;
@@ -76,18 +85,22 @@
             display: inline-flex;
             align-items: center;
         }
+
         .copiar-btn:hover {
             color: #218838;
         }
+
         .copiar-btn i {
             margin-right: 5px;
         }
+
         #prompts-list {
             display: flex;
             flex-direction: column;
             align-items: center;
             margin-top: 100px;
         }
+
         select {
             margin-top: 10px;
             padding: 8px;
@@ -95,250 +108,254 @@
             border: 1px solid #ccc;
             font-family: inherit;
         }
+
         .contenido {
             margin-top: 10px;
         }
     </style>
 </head>
+
 <body>
 
-<h1>Gestor de Prompts</h1>
-<div class="nav-bar" id="navbar"></div>
-<div id="prompts-list"></div>
+    <h1>Gestor de Prompts</h1>
+    <div class="nav-bar" id="navbar"></div>
+    <div id="prompts-list"></div>
 
-<script>
-let prompts = [
-    {
-        titulo: "Agregar logs",
-        etiquetas: ["backend", "java", "logs"],
-        focuses: [
+    <script>
+        let prompts = [
             {
-                nombre: "Logs básicos",
-                contenido: `Agrega logs informativos al inicio y final del método, y antes/después de llamadas a servicios. este es el codigo: %codigo%`
+                titulo: "Agregar logs",
+                etiquetas: ["backend", "java", "logs"],
+                focuses: [
+                    {
+                        nombre: "Logs básicos",
+                        contenido: `Agrega logs informativos al inicio y final del método, y antes/después de llamadas a servicios. este es el codigo: %codigo%`
+                    },
+                    {
+                        nombre: "Logs detallados con errores",
+                        contenido: `Agrega logs de nivel info y error, incluyendo parámetros de entrada y manejo de excepciones. este es el codigo: %codigo%`
+                    }
+                ]
             },
             {
-                nombre: "Logs detallados con errores",
-                contenido: `Agrega logs de nivel info y error, incluyendo parámetros de entrada y manejo de excepciones. este es el codigo: %codigo%`
+                titulo: "Crear JSON de prueba",
+                etiquetas: ["backend", "API", "JSON"],
+                focuses: [
+                    {
+                        nombre: "Ejemplo simple",
+                        contenido: `Genera un JSON básico basado en esta clase: %codigo%`
+                    },
+                    {
+                        nombre: "Ejemplo avanzado con listas",
+                        contenido: `Genera un JSON con estructuras anidadas, listas y objetos complejos basado en esta clase: %codigo%`
+                    }
+                ]
+            },
+            {
+                titulo: "Analizar código",
+                etiquetas: ["general", "análisis", "refactorización"],
+                focuses: [
+                    {
+                        nombre: "Análisis general",
+                        contenido: `Analiza el siguiente fragmento de código. Indícame qué hace, si está bien estructurado, si hay problemas de legibilidad o mantenimiento, y sugiéreme posibles mejoras o refactorizaciones.\n\n %codigo%`
+                    },
+                    {
+                        nombre: "Análisis arquitectónico",
+                        contenido: `Analiza este código desde el punto de vista arquitectónico. ¿Se respetan principios como separación de responsabilidades, bajo acoplamiento y alta cohesión? ¿Qué mejoras sugerirías para hacerlo más mantenible y escalable?\n\n %codigo%`
+                    },
+                    {
+                        nombre: "Análisis para testing",
+                        contenido: `¿Qué tan testeable es este código? Señálame partes que dificulten escribir pruebas unitarias o de integración, y sugiéreme cómo refactorizarlo para mejorar su testabilidad.\n\n %codigo%`
+                    }
+                ]
+            },
+            {
+                titulo: "Crear una nueva tabla o columna",
+                etiquetas: ["SQL", "estructura", "schema"],
+                focuses: [
+                    {
+                        nombre: "Crear tabla",
+                        contenido: `Necesito crear una tabla en SQL. A continuación, te describo lo que necesito guardar. Ayúdame a generar la sentencia SQL adecuada, incluyendo tipos de datos apropiados y claves primarias o foráneas si es necesario.`
+                    },
+                    {
+                        nombre: "Agregar columna",
+                        contenido: `Quiero agregar una nueva columna a una tabla existente. Ayúdame a definir el tipo de dato correcto y la sentencia ALTER TABLE necesaria, la tabla es: %nombre_tabla% y la columna nueva que necesito es: %requerimiento%`,
+                    }
+                ]
+            },
+            {
+                titulo: "Poblar datos de una tabla",
+                etiquetas: ["SQL", "datos", "insert"],
+                focuses: [
+                    {
+                        nombre: "Insertar datos de prueba",
+                        contenido: `Ayúdame a generar sentencias INSERT para poblar esta tabla con datos de prueba. La estructura de la tabla es la siguiente: %estructura%`
+                    },
+                    {
+                        nombre: "Insertar datos con relaciones",
+                        contenido: `Necesito poblar una tabla que tiene relaciones con otras. Ayúdame a generar inserts considerando claves foráneas y dependencias.`
+                    }
+                ]
+            },
+            {
+                titulo: "Consultas para reportes o dashboards",
+                etiquetas: ["SQL", "reportes", "dashboards"],
+                focuses: [
+                    {
+                        nombre: "Consulta básica para reporte",
+                        contenido: `Necesito una consulta SQL para un reporte, hazlo de la siguiente manera, %peticion%`
+                    },
+                    {
+                        nombre: "Consulta compleja para dashboard",
+                        contenido: `Ayúdame a crear una consulta que combine varias tablas con JOINs y agregaciones, pensada para alimentar un dashboard.`
+                    }
+                ]
+            },
+            {
+                titulo: "Contextualizacion IA de base de datos SQL",
+                etiquetas: ["SQL", "Contexto IA"],
+                focuses: [
+                    {
+                        nombre: "Estructura de tabla",
+                        contenido: "Para que puedas hacer consultas precisas, quiero que tengas en cuenta la siguiente tabla `%nombre_tabla%` en futuras interacciones. Aquí está su estructura completa: %sql%"
+                    },
+                    {
+                        nombre: "Estructura de base de datos",
+                        contenido: "Quiero que tengas en cuenta el siguiente código DDL que representa la estructura completa de la base de datos para futuras consultas. Aquí están las tablas y relaciones de la base de datos: Esto te ayudará a entender cómo se relacionan las tablas entre sí y cómo consultar correctamente la base de datos."
+                    }
+
+                ]
             }
-        ]
-    },
-    {
-        titulo: "Crear JSON de prueba",
-        etiquetas: ["backend", "API", "JSON"],
-        focuses: [
-            {
-                nombre: "Ejemplo simple",
-                contenido: `Genera un JSON básico basado en esta clase: %codigo%`
-            },
-            {
-                nombre: "Ejemplo avanzado con listas",
-                contenido: `Genera un JSON con estructuras anidadas, listas y objetos complejos basado en esta clase: %codigo%`
-            }
-        ]
-    },
-    {
-        titulo: "Analizar código",
-        etiquetas: ["general", "análisis", "refactorización"],
-        focuses: [
-            {
-                nombre: "Análisis general",
-                contenido: `Analiza el siguiente fragmento de código. Indícame qué hace, si está bien estructurado, si hay problemas de legibilidad o mantenimiento, y sugiéreme posibles mejoras o refactorizaciones.\n\n %codigo%`
-            },
-            {
-                nombre: "Análisis arquitectónico",
-                contenido: `Analiza este código desde el punto de vista arquitectónico. ¿Se respetan principios como separación de responsabilidades, bajo acoplamiento y alta cohesión? ¿Qué mejoras sugerirías para hacerlo más mantenible y escalable?\n\n %codigo%`
-            },
-            {
-                nombre: "Análisis para testing",
-                contenido: `¿Qué tan testeable es este código? Señálame partes que dificulten escribir pruebas unitarias o de integración, y sugiéreme cómo refactorizarlo para mejorar su testabilidad.\n\n %codigo%`
-            }
-        ]
-    },
-    {
-        titulo: "Crear una nueva tabla o columna",
-        etiquetas: ["SQL", "estructura", "schema"],
-        focuses: [
-            {
-                nombre: "Crear tabla",
-                contenido: `Necesito crear una tabla en SQL. A continuación, te describo lo que necesito guardar. Ayúdame a generar la sentencia SQL adecuada, incluyendo tipos de datos apropiados y claves primarias o foráneas si es necesario.`
-            },
-            {
-                nombre: "Agregar columna",
-                contenido: `Quiero agregar una nueva columna a una tabla existente. Ayúdame a definir el tipo de dato correcto y la sentencia ALTER TABLE necesaria.`
-            }
-        ]
-    },
-    {
-        titulo: "Poblar datos de una tabla",
-        etiquetas: ["SQL", "datos", "insert"],
-        focuses: [
-            {
-                nombre: "Insertar datos de prueba",
-                contenido: `Ayúdame a generar sentencias INSERT para poblar esta tabla con datos de prueba. La estructura de la tabla es la siguiente: %estructura%`
-            },
-            {
-                nombre: "Insertar datos con relaciones",
-                contenido: `Necesito poblar una tabla que tiene relaciones con otras. Ayúdame a generar inserts considerando claves foráneas y dependencias.`
-            }
-        ]
-    },
-    {
-        titulo: "Consultas para reportes o dashboards",
-        etiquetas: ["SQL", "reportes", "dashboards"],
-        focuses: [
-            {
-                nombre: "Consulta básica para reporte",
-                contenido: `Necesito una consulta SQL para un reporte, hazlo de la siguiente manera, %peticion%`
-            },
-            {
-                nombre: "Consulta compleja para dashboard",
-                contenido: `Ayúdame a crear una consulta que combine varias tablas con JOINs y agregaciones, pensada para alimentar un dashboard.`
-            }
-        ]
-    },
-    {
-        titulo: "Contextualizacion IA de base de datos SQL",
-        etiquetas: ["SQL", "Contexto IA"],
-        focuses: [
-            {
-                nombre: "Consulta básica para reporte",
-                contenido: `Necesito una consulta SQL para un reporte, hazlo de la siguiente manera, %peticion%`
-            },
-            {
-                nombre: "Consulta compleja para dashboard",
-                contenido: `Ayúdame a crear una consulta que combine varias tablas con JOINs y agregaciones, pensada para alimentar un dashboard.`
-            }
-        ]
-    }
-];
+        ];
 
 
-let allTags = [];
+        let allTags = [];
 
-// Obtener todas las etiquetas únicas
-prompts.forEach(prompt => {
-    prompt.etiquetas.forEach(etiqueta => {
-        if (!allTags.includes(etiqueta)) {
-            allTags.push(etiqueta);
+        // Obtener todas las etiquetas únicas
+        prompts.forEach(prompt => {
+            prompt.etiquetas.forEach(etiqueta => {
+                if (!allTags.includes(etiqueta)) {
+                    allTags.push(etiqueta);
+                }
+            });
+        });
+
+        function copiarPrompt(prompt, focus) {
+            let contenido = focus.contenido;
+
+            // Buscar todas las variables en el contenido (dentro de %%)
+            const regex = /%([^%]+)%/g;
+            let matches = [...contenido.matchAll(regex)];
+
+            if (matches.length > 0) {
+                matches.forEach(match => {
+                    let variable = match[1];
+                    let userInput = window.prompt(`Introduce el valor para ${variable}`);
+                    contenido = contenido.replace(match[0], userInput);
+                });
+            }
+
+            // Copiar el contenido al portapapeles
+            navigator.clipboard.writeText(contenido)
+                .then(() => alert("Prompt copiado con éxito"))
+                .catch(err => alert("Error al copiar: " + err));
         }
-    });
-});
 
-function copiarPrompt(prompt, focus) {
-    let contenido = focus.contenido;
+        // Función de filtrado y asignación de prompts
+        function mostrarPrompts(filtroTags = []) {
+            const container = document.getElementById("prompts-list");
+            container.innerHTML = ''; // Limpiar lista
 
-    // Buscar todas las variables en el contenido (dentro de %%)
-    const regex = /%([^%]+)%/g;
-    let matches = [...contenido.matchAll(regex)];
+            const filteredPrompts = filtroTags.length === 0 ? prompts : prompts.filter(prompt =>
+                filtroTags.every(tag => prompt.etiquetas.includes(tag))
+            );
 
-    if (matches.length > 0) {
-        matches.forEach(match => {
-            let variable = match[1];
-            let userInput = window.prompt(`Introduce el valor para ${variable}`);
-            contenido = contenido.replace(match[0], userInput);
-        });
-    }
+            filteredPrompts.forEach((prompt) => {
+                const promptDiv = document.createElement("div");
+                promptDiv.classList.add("prompt-container");
 
-    // Copiar el contenido al portapapeles
-    navigator.clipboard.writeText(contenido)
-        .then(() => alert("Prompt copiado con éxito"))
-        .catch(err => alert("Error al copiar: " + err));
-}
+                const titulo = document.createElement("div");
+                titulo.classList.add("titulo");
+                titulo.textContent = prompt.titulo;
 
-// Función de filtrado y asignación de prompts
-function mostrarPrompts(filtroTags = []) {
-    const container = document.getElementById("prompts-list");
-    container.innerHTML = ''; // Limpiar lista
+                const etiquetas = document.createElement("div");
+                etiquetas.classList.add("etiquetas");
+                etiquetas.textContent = `Etiquetas: ${prompt.etiquetas.join(", ")}`;
 
-    const filteredPrompts = filtroTags.length === 0 ? prompts : prompts.filter(prompt =>
-        filtroTags.every(tag => prompt.etiquetas.includes(tag))
-    );
+                const select = document.createElement("select");
 
-    filteredPrompts.forEach((prompt) => {
-        const promptDiv = document.createElement("div");
-        promptDiv.classList.add("prompt-container");
+                // Agregar un primer option como texto de descripción
+                const defaultOption = document.createElement("option");
+                defaultOption.textContent = "Selecciona un foco";
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                select.appendChild(defaultOption);
 
-        const titulo = document.createElement("div");
-        titulo.classList.add("titulo");
-        titulo.textContent = prompt.titulo;
+                // Agregar las opciones de los focos
+                prompt.focuses.forEach((f, i) => {
+                    const option = document.createElement("option");
+                    option.value = i;
+                    option.textContent = f.nombre;
+                    select.appendChild(option);
+                });
 
-        const etiquetas = document.createElement("div");
-        etiquetas.classList.add("etiquetas");
-        etiquetas.textContent = `Etiquetas: ${prompt.etiquetas.join(", ")}`;
+                const contenidoDiv = document.createElement("div");
+                contenidoDiv.classList.add("contenido");
+                contenidoDiv.innerHTML = aplicarEstiloAvariables(prompt.focuses[0].contenido);
 
-        const select = document.createElement("select");
+                // Actualizar contenido cuando el usuario selecciona un foco diferente
+                select.onchange = () => {
+                    let index = select.value;
+                    contenidoDiv.innerHTML = aplicarEstiloAvariables(prompt.focuses[index].contenido);
+                };
 
-        // Agregar un primer option como texto de descripción
-        const defaultOption = document.createElement("option");
-        defaultOption.textContent = "Selecciona un foco";
-        defaultOption.disabled = true;
-        defaultOption.selected = true;
-        select.appendChild(defaultOption);
+                // Crear botón "Copiar"
+                const copiarBtn = document.createElement("span");
+                copiarBtn.classList.add("copiar-btn");
+                copiarBtn.innerHTML = `<i class="fas fa-copy"></i> Copiar`;
 
-        // Agregar las opciones de los focos
-        prompt.focuses.forEach((f, i) => {
-            const option = document.createElement("option");
-            option.value = i;
-            option.textContent = f.nombre;
-            select.appendChild(option);
-        });
+                // Guardar la referencia completa de `prompt` y `focus` en el evento `onclick`
+                copiarBtn.onclick = () => copiarPrompt(prompt, prompt.focuses[select.value]);
 
-        const contenidoDiv = document.createElement("div");
-        contenidoDiv.classList.add("contenido");
-        contenidoDiv.innerHTML = aplicarEstiloAvariables(prompt.focuses[0].contenido);
+                promptDiv.appendChild(titulo);
+                promptDiv.appendChild(select);
+                promptDiv.appendChild(contenidoDiv);
+                promptDiv.appendChild(etiquetas);
+                promptDiv.appendChild(copiarBtn);
 
-        // Actualizar contenido cuando el usuario selecciona un foco diferente
-        select.onchange = () => {
-            let index = select.value;
-            contenidoDiv.innerHTML = aplicarEstiloAvariables(prompt.focuses[index].contenido);
-        };
-
-        // Crear botón "Copiar"
-        const copiarBtn = document.createElement("span");
-        copiarBtn.classList.add("copiar-btn");
-        copiarBtn.innerHTML = `<i class="fas fa-copy"></i> Copiar`;
-
-        // Guardar la referencia completa de `prompt` y `focus` en el evento `onclick`
-        copiarBtn.onclick = () => copiarPrompt(prompt, prompt.focuses[select.value]);
-
-        promptDiv.appendChild(titulo);
-        promptDiv.appendChild(select);
-        promptDiv.appendChild(contenidoDiv);
-        promptDiv.appendChild(etiquetas);
-        promptDiv.appendChild(copiarBtn);
-
-        container.appendChild(promptDiv);
-    });
-}
+                container.appendChild(promptDiv);
+            });
+        }
 
 
 
-function aplicarEstiloAvariables(texto) {
-    return texto.replace(/%([^%]+)%/g, '<span style="color: #ff7f00;">%$1%</span>');
-}
+        function aplicarEstiloAvariables(texto) {
+            return texto.replace(/%([^%]+)%/g, '<span style="color: #ff7f00;">%$1%</span>');
+        }
 
-function mostrarEtiquetas() {
-    const navbar = document.getElementById("navbar");
-    navbar.innerHTML = '';
+        function mostrarEtiquetas() {
+            const navbar = document.getElementById("navbar");
+            navbar.innerHTML = '';
 
-    allTags.forEach(tag => {
-        const tagDiv = document.createElement("div");
-        tagDiv.classList.add("etiqueta");
-        tagDiv.textContent = tag;
-        tagDiv.onclick = () => mostrarPrompts([tag]);
-        navbar.appendChild(tagDiv);
-    });
+            allTags.forEach(tag => {
+                const tagDiv = document.createElement("div");
+                tagDiv.classList.add("etiqueta");
+                tagDiv.textContent = tag;
+                tagDiv.onclick = () => mostrarPrompts([tag]);
+                navbar.appendChild(tagDiv);
+            });
 
-    const showAllBtn = document.createElement("div");
-    showAllBtn.classList.add("etiqueta");
-    showAllBtn.textContent = "Mostrar Todos";
-    showAllBtn.onclick = () => mostrarPrompts();
-    navbar.appendChild(showAllBtn);
-}
+            const showAllBtn = document.createElement("div");
+            showAllBtn.classList.add("etiqueta");
+            showAllBtn.textContent = "Mostrar Todos";
+            showAllBtn.onclick = () => mostrarPrompts();
+            navbar.appendChild(showAllBtn);
+        }
 
-mostrarEtiquetas();
-mostrarPrompts();
-</script>
+        mostrarEtiquetas();
+        mostrarPrompts();
+    </script>
 
 </body>
+
 </html>
