@@ -53,11 +53,14 @@
             border-radius: 10px;
             background-color: #fff;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
         }
         .titulo {
             font-weight: 600;
             font-size: 1.4em;
             color: #5e2a84;
+            margin-bottom: 10px;
         }
         .etiquetas {
             font-style: italic;
@@ -66,7 +69,7 @@
         }
         .copiar-btn {
             cursor: pointer;
-            color: #28a745; /* Verde */
+            color: #28a745;
             font-size: 18px;
             margin-left: 10px;
             vertical-align: middle;
@@ -74,7 +77,7 @@
             align-items: center;
         }
         .copiar-btn:hover {
-            color: #218838; /* Verde más oscuro */
+            color: #218838;
         }
         .copiar-btn i {
             margin-right: 5px;
@@ -85,16 +88,21 @@
             align-items: center;
             margin-top: 100px;
         }
+        select {
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-family: inherit;
+        }
+        .contenido {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 
-<br>
-<br>
-<br>
-
 <h1>Gestor de Prompts</h1>
-
 <div class="nav-bar" id="navbar"></div>
 <div id="prompts-list"></div>
 
@@ -102,37 +110,112 @@
 let prompts = [
     {
         titulo: "Agregar logs",
-        contenido: `Tengo un bloque de código en Java y quiero mejorarlo con logs estratégicos para facilitar el diagnóstico de errores y el monitoreo del sistema.
-
-Por favor:
-- Usa Logger con nivel adecuado (info, debug, warn, error)
-- Agrega logs al inicio y fin del flujo
-- Loguea parámetros de entrada y salida relevantes
-- Añade logs antes y después de llamadas a servicios, repositorios, etc.
-- Loguea condiciones especiales o validaciones (por ejemplo, cuando algo está vacío o es nulo)
-- En bloques try-catch, registra el error capturado
-
-No agregues logs innecesarios ni repetitivos. El objetivo es tener claridad del flujo para identificar cuellos de botella o errores.
-
-Aquí tienes el código:`,
-
-        etiquetas: ["backend", "java", "logs"]
+        etiquetas: ["backend", "java", "logs"],
+        focuses: [
+            {
+                nombre: "Logs básicos",
+                contenido: `Agrega logs informativos al inicio y final del método, y antes/después de llamadas a servicios. este es el codigo: %codigo%`
+            },
+            {
+                nombre: "Logs detallados con errores",
+                contenido: `Agrega logs de nivel info y error, incluyendo parámetros de entrada y manejo de excepciones. este es el codigo: %codigo%`
+            }
+        ]
     },
     {
         titulo: "Crear JSON de prueba",
-        contenido: "Te voy a proporcionar la definición de una clase Java. Por favor, genera un objeto JSON de ejemplo completamente poblado, con datos realistas para cada campo (nombres, fechas, correos, precios, etc.). Asegúrate de incluir también las listas o estructuras anidadas si las hay. codigo: %codigo%  ",
-        etiquetas: ["backend", "API", "JSON"]
+        etiquetas: ["backend", "API", "JSON"],
+        focuses: [
+            {
+                nombre: "Ejemplo simple",
+                contenido: `Genera un JSON básico basado en esta clase: %codigo%`
+            },
+            {
+                nombre: "Ejemplo avanzado con listas",
+                contenido: `Genera un JSON con estructuras anidadas, listas y objetos complejos basado en esta clase: %codigo%`
+            }
+        ]
     },
     {
-        titulo: "Prompt 3",
-        contenido: "Descripción del tercer prompt. Aquí puedes escribir el prompt que quieras.",
-        etiquetas: ["bases de datos", "SQL", "consultas"]
+        titulo: "Analizar código",
+        etiquetas: ["general", "análisis", "refactorización"],
+        focuses: [
+            {
+                nombre: "Análisis general",
+                contenido: `Analiza el siguiente fragmento de código. Indícame qué hace, si está bien estructurado, si hay problemas de legibilidad o mantenimiento, y sugiéreme posibles mejoras o refactorizaciones.\n\n %codigo%`
+            },
+            {
+                nombre: "Análisis arquitectónico",
+                contenido: `Analiza este código desde el punto de vista arquitectónico. ¿Se respetan principios como separación de responsabilidades, bajo acoplamiento y alta cohesión? ¿Qué mejoras sugerirías para hacerlo más mantenible y escalable?\n\n %codigo%`
+            },
+            {
+                nombre: "Análisis para testing",
+                contenido: `¿Qué tan testeable es este código? Señálame partes que dificulten escribir pruebas unitarias o de integración, y sugiéreme cómo refactorizarlo para mejorar su testabilidad.\n\n %codigo%`
+            }
+        ]
+    },
+    {
+        titulo: "Crear una nueva tabla o columna",
+        etiquetas: ["SQL", "estructura", "schema"],
+        focuses: [
+            {
+                nombre: "Crear tabla",
+                contenido: `Necesito crear una tabla en SQL. A continuación, te describo lo que necesito guardar. Ayúdame a generar la sentencia SQL adecuada, incluyendo tipos de datos apropiados y claves primarias o foráneas si es necesario.`
+            },
+            {
+                nombre: "Agregar columna",
+                contenido: `Quiero agregar una nueva columna a una tabla existente. Ayúdame a definir el tipo de dato correcto y la sentencia ALTER TABLE necesaria.`
+            }
+        ]
+    },
+    {
+        titulo: "Poblar datos de una tabla",
+        etiquetas: ["SQL", "datos", "insert"],
+        focuses: [
+            {
+                nombre: "Insertar datos de prueba",
+                contenido: `Ayúdame a generar sentencias INSERT para poblar esta tabla con datos de prueba. La estructura de la tabla es la siguiente: %estructura%`
+            },
+            {
+                nombre: "Insertar datos con relaciones",
+                contenido: `Necesito poblar una tabla que tiene relaciones con otras. Ayúdame a generar inserts considerando claves foráneas y dependencias.`
+            }
+        ]
+    },
+    {
+        titulo: "Consultas para reportes o dashboards",
+        etiquetas: ["SQL", "reportes", "dashboards"],
+        focuses: [
+            {
+                nombre: "Consulta básica para reporte",
+                contenido: `Necesito una consulta SQL para un reporte, hazlo de la siguiente manera, %peticion%`
+            },
+            {
+                nombre: "Consulta compleja para dashboard",
+                contenido: `Ayúdame a crear una consulta que combine varias tablas con JOINs y agregaciones, pensada para alimentar un dashboard.`
+            }
+        ]
+    },
+    {
+        titulo: "Contextualizacion IA de base de datos SQL",
+        etiquetas: ["SQL", "Contexto IA"],
+        focuses: [
+            {
+                nombre: "Consulta básica para reporte",
+                contenido: `Necesito una consulta SQL para un reporte, hazlo de la siguiente manera, %peticion%`
+            },
+            {
+                nombre: "Consulta compleja para dashboard",
+                contenido: `Ayúdame a crear una consulta que combine varias tablas con JOINs y agregaciones, pensada para alimentar un dashboard.`
+            }
+        ]
     }
 ];
 
+
 let allTags = [];
 
-// Obtener todas las etiquetas únicas de los prompts
+// Obtener todas las etiquetas únicas
 prompts.forEach(prompt => {
     prompt.etiquetas.forEach(etiqueta => {
         if (!allTags.includes(etiqueta)) {
@@ -141,15 +224,37 @@ prompts.forEach(prompt => {
     });
 });
 
+function copiarPrompt(prompt, focus) {
+    let contenido = focus.contenido;
+
+    // Buscar todas las variables en el contenido (dentro de %%)
+    const regex = /%([^%]+)%/g;
+    let matches = [...contenido.matchAll(regex)];
+
+    if (matches.length > 0) {
+        matches.forEach(match => {
+            let variable = match[1];
+            let userInput = window.prompt(`Introduce el valor para ${variable}`);
+            contenido = contenido.replace(match[0], userInput);
+        });
+    }
+
+    // Copiar el contenido al portapapeles
+    navigator.clipboard.writeText(contenido)
+        .then(() => alert("Prompt copiado con éxito"))
+        .catch(err => alert("Error al copiar: " + err));
+}
+
+// Función de filtrado y asignación de prompts
 function mostrarPrompts(filtroTags = []) {
     const container = document.getElementById("prompts-list");
-    container.innerHTML = '';
+    container.innerHTML = ''; // Limpiar lista
 
-    const filteredPrompts = filtroTags.length === 0 ? prompts : prompts.filter(prompt => 
+    const filteredPrompts = filtroTags.length === 0 ? prompts : prompts.filter(prompt =>
         filtroTags.every(tag => prompt.etiquetas.includes(tag))
     );
 
-    filteredPrompts.forEach((prompt, index) => {
+    filteredPrompts.forEach((prompt) => {
         const promptDiv = document.createElement("div");
         promptDiv.classList.add("prompt-container");
 
@@ -157,21 +262,48 @@ function mostrarPrompts(filtroTags = []) {
         titulo.classList.add("titulo");
         titulo.textContent = prompt.titulo;
 
-        const contenido = document.createElement("div");
-        contenido.innerHTML = aplicarEstiloAvariables(prompt.contenido);
-
         const etiquetas = document.createElement("div");
         etiquetas.classList.add("etiquetas");
         etiquetas.textContent = `Etiquetas: ${prompt.etiquetas.join(", ")}`;
 
+        const select = document.createElement("select");
+
+        // Agregar un primer option como texto de descripción
+        const defaultOption = document.createElement("option");
+        defaultOption.textContent = "Selecciona un foco";
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        select.appendChild(defaultOption);
+
+        // Agregar las opciones de los focos
+        prompt.focuses.forEach((f, i) => {
+            const option = document.createElement("option");
+            option.value = i;
+            option.textContent = f.nombre;
+            select.appendChild(option);
+        });
+
+        const contenidoDiv = document.createElement("div");
+        contenidoDiv.classList.add("contenido");
+        contenidoDiv.innerHTML = aplicarEstiloAvariables(prompt.focuses[0].contenido);
+
+        // Actualizar contenido cuando el usuario selecciona un foco diferente
+        select.onchange = () => {
+            let index = select.value;
+            contenidoDiv.innerHTML = aplicarEstiloAvariables(prompt.focuses[index].contenido);
+        };
+
+        // Crear botón "Copiar"
         const copiarBtn = document.createElement("span");
         copiarBtn.classList.add("copiar-btn");
         copiarBtn.innerHTML = `<i class="fas fa-copy"></i> Copiar`;
 
-        copiarBtn.onclick = () => copiarPrompt(index);
+        // Guardar la referencia completa de `prompt` y `focus` en el evento `onclick`
+        copiarBtn.onclick = () => copiarPrompt(prompt, prompt.focuses[select.value]);
 
         promptDiv.appendChild(titulo);
-        promptDiv.appendChild(contenido);
+        promptDiv.appendChild(select);
+        promptDiv.appendChild(contenidoDiv);
         promptDiv.appendChild(etiquetas);
         promptDiv.appendChild(copiarBtn);
 
@@ -179,30 +311,11 @@ function mostrarPrompts(filtroTags = []) {
     });
 }
 
-function copiarPrompt(index) {
-    let prompt = prompts[index];
-    let promptText = prompt.contenido;
 
-    const regex = /%([^%]+)%/g;
-    let matches = [...promptText.matchAll(regex)];
-
-    if (matches.length > 0) {
-        matches.forEach(match => {
-            let variable = match[1];
-            let userInput = window.prompt(`Introduce el valor para ${variable}`);
-            promptText = promptText.replace(match[0], userInput);
-        });
-    }
-
-    navigator.clipboard.writeText(promptText)
-        .then(() => alert("Prompt copiado con éxito"))
-        .catch(err => alert("Error al copiar: " + err));
-}
 
 function aplicarEstiloAvariables(texto) {
     return texto.replace(/%([^%]+)%/g, '<span style="color: #ff7f00;">%$1%</span>');
 }
-
 
 function mostrarEtiquetas() {
     const navbar = document.getElementById("navbar");
@@ -216,7 +329,6 @@ function mostrarEtiquetas() {
         navbar.appendChild(tagDiv);
     });
 
-    // Agregar un botón para mostrar todos los prompts
     const showAllBtn = document.createElement("div");
     showAllBtn.classList.add("etiqueta");
     showAllBtn.textContent = "Mostrar Todos";
